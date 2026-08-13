@@ -169,9 +169,14 @@ h1 {
     background: linear-gradient(180deg, var(--teal), var(--coral));
 }
 
-.section-title > span,
-.section-title > div {
+.section-title>span,
+.section-title>div {
     margin-left: auto;
+}
+
+.about-section .section-title {
+    justify-content: flex-start;
+    text-align: left;
 }
 
 #next-date {
@@ -185,6 +190,39 @@ h1 {
     color: var(--teal-dark);
     font-size: 0.86rem;
     font-weight: 750;
+}
+
+.motto-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border: 1px solid rgba(15, 118, 110, 0.18);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(183, 121, 31, 0.08));
+    box-shadow: var(--shadow-soft);
+}
+
+.motto-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e8f4f1;
+    color: var(--teal-dark);
+    font-size: 0.9rem;
+}
+
+.motto-banner p {
+    color: var(--teal-dark);
+    font-size: 1.05rem;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+    text-align: center;
 }
 
 .about-content p {
@@ -616,8 +654,8 @@ footer {
         height: 24px;
     }
 
-    .section-title > div,
-    .section-title > span {
+    .section-title>div,
+    .section-title>span {
         width: 100%;
         margin-left: 0;
     }
