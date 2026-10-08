@@ -595,8 +595,10 @@
                                 <span class="card-presenter">${meeting.Presenter || ''}</span>
                                 <span class="card-date">${formattedDate}</span>
                             </div>
-                            ${meeting.Title ? `<div class="card-topic">${meeting.Title}</div>` : ''}
-                            ${slidesHTML}
+                            <div class="card-topic-row">
+                                ${meeting.Title ? `<div class="card-topic">${meeting.Title}</div>` : ''}
+                                ${slidesHTML}
+                            </div>
                         </div>
                         <div class="card-papers">
                             ${papersHTML}
