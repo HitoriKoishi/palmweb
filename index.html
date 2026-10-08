@@ -43,7 +43,7 @@
                                 School of Computer Science and Engineering at Southeast University. Our primary focus
                                 is uncertainty quantification within large-scale vision models and computer vision
                                 pipelines.</p>
-                            <p>Monthly, Each month, several graduate students are invited to lead a session
+                            <p>Monthly, several graduate students are invited to lead a session
                                 where they share recent research papers, technical insights, and hands-on experience. We
                                 welcome undergraduate students who are interested in joining our discussions.</p>
                         </div>
@@ -104,20 +104,9 @@
                     </h2>
 
 
-                    <table class="archive-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Presenter</th>
-                                <th>Title</th>
-                                <th>Conference/Journal</th>
-                                <th>Download</th>
-                            </tr>
-                        </thead>
-                        <tbody id="archive-table-body">
-                            <!-- Data will be populated by JavaScript -->
-                        </tbody>
-                    </table>
+                    <div id="archive-cards" class="archive-cards">
+                        <!-- Cards will be populated by JavaScript -->
+                    </div>
                     <div class="pagination-controls">
                         <div class="pagination-buttons">
                             <button id="first-page" class="pagination-btn" title="First Page">
@@ -180,7 +169,7 @@
         const API_KEY = 'AIzaSyCQ8vYWkeyuEr54k0eIOh7_juCenQujGhI'; // 替换为你的Google API密钥
 
         // Page elements
-        const archiveTableBody = document.getElementById('archive-table-body');
+        const archiveContainer = document.getElementById('archive-cards');
         const sortSelect = document.getElementById('sort-select');
         const searchInput = document.getElementById('search-input');
         const refreshTableBtn = document.getElementById('refresh-table');
@@ -236,15 +225,11 @@
         // Function to load data from Google Sheet
         function loadDataFromGoogleSheet() {
             // Show loading state
-            archiveTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6">
-                        <div class="loading-indicator">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            正在从Google Sheet加载会议数据...
-                        </div>
-                    </td>
-                </tr>
+            archiveContainer.innerHTML = `
+                <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    正在从Google Sheet加载会议数据...
+                </div>
             `;
 
             // Construct the Google Sheets API URL
@@ -380,15 +365,11 @@
         function fetchDataFromGoogleSheet(silentUpdate = false) {
             if (!silentUpdate) {
                 // 显示加载状态
-                archiveTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="loading-indicator">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                正在从Google Sheet加载会议数据...
-                            </div>
-                        </td>
-                    </tr>
+                archiveContainer.innerHTML = `
+                    <div class="loading-indicator">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        正在从Google Sheet加载会议数据...
+                    </div>
                 `;
             }
 
@@ -441,10 +422,10 @@
                 ${message}
             `;
 
-            // 在表格上方显示警告
-            const table = document.querySelector('.archive-table');
-            if (table && table.parentNode) {
-                table.parentNode.insertBefore(warningDiv, table);
+            // 在卡片区域上方显示警告
+            const cards = document.querySelector('.archive-cards');
+            if (cards && cards.parentNode) {
+                cards.parentNode.insertBefore(warningDiv, cards);
             }
 
             // 3秒后淡出
@@ -458,18 +439,44 @@
                 }, 1000);
             }, 3000);
         }
-        // Render meeting archive table
+        // 从一行记录中解析出论文列表（支持新格式 Title1/Conference1/Year1/Link1... 和旧格式 Title/Conference/Year/Paper Link）
+        function extractPapers(meeting) {
+            const papers = [];
+
+            // 新格式：Title1, Conference1, Year1, Link1, Title2, ...
+            for (let i = 1; i <= 20; i++) {
+                const title = meeting[`Title${i}`];
+                if (title) {
+                    papers.push({
+                        title: title,
+                        conference: meeting[`Conference${i}`] || '',
+                        year: meeting[`Year${i}`] || '',
+                        link: meeting[`Link${i}`] || ''
+                    });
+                }
+            }
+
+            // 旧格式回退：单篇论文列
+            if (papers.length === 0 && meeting.Title) {
+                papers.push({
+                    title: meeting.Title,
+                    conference: meeting.Conference || '',
+                    year: meeting.Year || '',
+                    link: meeting['Paper Link'] || ''
+                });
+            }
+
+            return papers;
+        }
+
+        // Render meeting archive as presenter-grouped cards
         function renderArchiveTable() {
             if (meetings.length === 0) {
-                archiveTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="error-message">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                没有会议记录可显示。
-                            </div>
-                        </td>
-                    </tr>
+                archiveContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        没有会议记录可显示。
+                    </div>
                 `;
                 return;
             }
@@ -480,7 +487,6 @@
             // Get sort option
             const sortOption = sortSelect.value;
 
-            // Filter meetings
             // Filter meetings - 只显示当前日期之前的记录，并排除下一次会议
             let filteredByDate = meetings.filter(meeting => {
                 const meetingId = meeting.id || `${meeting.Date}-${meeting.Title}`;
@@ -491,12 +497,14 @@
                 return meetingId !== nextMeetingId && meetingDate < new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
             });
 
-            // 第二次过滤：基于搜索条件
-            filteredMeetings = filteredByDate.filter(meeting =>
-                (meeting.Presenter && meeting.Presenter.toLowerCase().includes(searchTerm)) ||
-                (meeting.Title && meeting.Title.toLowerCase().includes(searchTerm)) ||
-                (meeting.Conference && meeting.Conference.toLowerCase().includes(searchTerm))
-            );
+            // 第二次过滤：基于搜索条件（包含论文标题/会议名）
+            filteredMeetings = filteredByDate.filter(meeting => {
+                const papers = extractPapers(meeting);
+                const paperText = papers.map(p => `${p.title} ${p.conference} ${p.year}`).join(' ');
+                return (meeting.Presenter && meeting.Presenter.toLowerCase().includes(searchTerm)) ||
+                    (meeting.Title && meeting.Title.toLowerCase().includes(searchTerm)) ||
+                    (paperText && paperText.toLowerCase().includes(searchTerm));
+            });
 
             // Apply sorting
             switch (sortOption) {
@@ -513,15 +521,11 @@
 
             // If no search results
             if (filteredMeetings.length === 0) {
-                archiveTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="error-message">
-                                <i class="fas fa-search"></i>
-                                没有匹配的会议记录。
-                            </div>
-                        </td>
-                    </tr>
+                archiveContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-search"></i>
+                        没有匹配的会议记录。
+                    </div>
                 `;
 
                 // 更新分页控件为空状态
@@ -545,9 +549,8 @@
             const endIndex = Math.min(startIndex + itemsPerPage, filteredMeetings.length);
             const pageMeetings = filteredMeetings.slice(startIndex, endIndex);
 
-            let tableHTML = '';
+            let cardsHTML = '';
 
-            // 使用pageMeetings而不是filteredMeetings
             pageMeetings.forEach(meeting => {
                 const date = new Date(meeting.Date);
                 const formattedDate = date.toLocaleDateString('zh-CN', {
@@ -556,20 +559,53 @@
                     day: '2-digit'
                 });
 
-                tableHTML += `
-                    <tr>
-                        <td>${formattedDate}</td>
-                        <td><strong>${meeting.Presenter || ''}</strong></td>
-                        <td>${meeting.Title || ''}</td>
-                        <td>${meeting.Conference + ' ' + meeting.Year || ''}</td>
-                        <td>
-                            <a href="${meeting['Slides Link']}" class="material-link" target="_blank"> &nbspSlides</a>
-                        </td>
-                    </tr>
+                const papers = extractPapers(meeting);
+                const papersHTML = papers.map(paper => {
+                    const confTag = (paper.conference + (paper.year ? ' ' + paper.year : '')).trim();
+                    let linkHTML = '';
+                    if (paper.link) {
+                        linkHTML = `
+                            <a href="${paper.link}" class="paper-download-link" target="_blank" rel="noopener">
+                                <i class="fas fa-download"></i> PDF
+                            </a>
+                        `;
+                    }
+                    return `
+                        <div class="paper-item">
+                            <div class="paper-info">
+                                <div class="paper-title">${paper.title}</div>
+                                ${confTag ? `<span class="conf-tag">${confTag}</span>` : ''}
+                            </div>
+                            ${linkHTML}
+                        </div>
+                    `;
+                }).join('');
+
+                const slidesLink = meeting['Slides Link'];
+                const slidesHTML = slidesLink ? `
+                    <a href="${slidesLink}" class="material-link" target="_blank" rel="noopener">
+                        <i class="fas fa-file-powerpoint"></i>&nbsp;Slides
+                    </a>
+                ` : '';
+
+                cardsHTML += `
+                    <div class="archive-card">
+                        <div class="card-header">
+                            <div class="card-heading">
+                                <span class="card-presenter">${meeting.Presenter || ''}</span>
+                                <span class="card-date">${formattedDate}</span>
+                            </div>
+                            ${meeting.Title ? `<div class="card-topic">${meeting.Title}</div>` : ''}
+                            ${slidesHTML}
+                        </div>
+                        <div class="card-papers">
+                            ${papersHTML}
+                        </div>
+                    </div>
                 `;
             });
 
-            archiveTableBody.innerHTML = tableHTML;
+            archiveContainer.innerHTML = cardsHTML;
         }
 
         // 添加分页控件更新函数
@@ -651,15 +687,11 @@
             localStorage.removeItem(CACHE_KEY);
 
             // 显示加载状态
-            archiveTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6">
-                        <div class="loading-indicator">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            正在刷新数据...
-                        </div>
-                    </td>
-                </tr>
+            archiveContainer.innerHTML = `
+                <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    正在刷新数据...
+                </div>
             `;
 
             // 重新加载数据
@@ -669,15 +701,11 @@
         }
 
         function showError(message) {
-            archiveTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6">
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            ${message}
-                        </div>
-                    </td>
-                </tr>
+            archiveContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${message}
+                </div>
             `;
         }
     </script>

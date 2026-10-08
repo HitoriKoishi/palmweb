@@ -413,75 +413,131 @@ h1 {
     transform: translateY(-1px);
 }
 
-.archive-table {
-    width: 100%;
+
+
+.archive-cards {
+    display: grid;
+    gap: 18px;
     margin-top: 12px;
-    border-collapse: separate;
-    border-spacing: 0;
+}
+
+.archive-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 22px;
     border: 1px solid var(--line);
-    border-radius: 8px;
-    overflow: hidden;
+    border-radius: 10px;
     background: var(--surface);
     box-shadow: var(--shadow-soft);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.archive-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.card-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.card-presenter {
+    color: var(--ink);
+    font-size: 1.08rem;
+    font-weight: 780;
+}
+
+.card-date {
+    color: var(--muted);
     font-size: 0.9rem;
-}
-
-.archive-table th,
-.archive-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--line);
-    text-align: left;
-    vertical-align: middle;
-}
-
-.archive-table th {
-    background: #25333b;
-    color: #f8fafc;
-    font-size: 0.78rem;
-    font-weight: 760;
-    text-transform: uppercase;
-}
-
-.archive-table th:nth-child(1),
-.archive-table td:nth-child(1),
-.archive-table th:nth-child(2),
-.archive-table td:nth-child(2),
-.archive-table th:nth-child(5),
-.archive-table td:nth-child(5) {
+    font-weight: 600;
     white-space: nowrap;
 }
 
-.archive-table th:nth-child(1),
-.archive-table td:nth-child(1) {
-    width: 118px;
+.card-topic {
+    width: 100%;
+    margin-top: 5px;
+    color: var(--teal-dark);
+    font-size: 0.96rem;
+    font-weight: 650;
+    line-height: 1.5;
 }
 
-.archive-table th:nth-child(2),
-.archive-table td:nth-child(2) {
-    width: 150px;
+.card-header .material-link {
+    flex: 0 0 auto;
+    margin-top: 2px;
 }
 
-.archive-table th:nth-child(4),
-.archive-table td:nth-child(4) {
-    width: 180px;
+.card-papers {
+    display: grid;
+    gap: 10px;
 }
 
-.archive-table th:nth-child(5),
-.archive-table td:nth-child(5) {
-    width: 112px;
-    text-align: center;
+.paper-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--surface-soft);
+    border: 1px solid rgba(216, 224, 221, 0.6);
 }
 
-.archive-table tbody tr:nth-child(even) {
-    background: #f8fbfa;
+.paper-info {
+    min-width: 0;
 }
 
-.archive-table tbody tr:hover {
-    background: #edf7f4;
+.paper-title {
+    display: block;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
-.archive-table tr:last-child td {
-    border-bottom: 0;
+.conf-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 7px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #e8f4f1;
+    border: 1px solid rgba(15, 118, 110, 0.16);
+    color: var(--teal-dark);
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.paper-download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.paper-download-link:hover {
+    color: var(--coral);
+    text-decoration: none;
 }
 
 .material-link {
@@ -671,20 +727,13 @@ footer {
         min-width: 100%;
     }
 
-    .archive-table {
-        display: block;
-        overflow-x: auto;
-        white-space: normal;
+    .archive-card {
+        padding: 16px 16px;
     }
 
-    .archive-table th,
-    .archive-table td {
-        min-width: 130px;
-    }
-
-    .archive-table th:nth-child(3),
-    .archive-table td:nth-child(3) {
-        min-width: 310px;
+    .paper-item {
+        flex-direction: column;
+        gap: 8px;
     }
 
     .pagination-controls {
