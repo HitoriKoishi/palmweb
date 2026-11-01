@@ -518,7 +518,8 @@ h1 {
 .conf-tag {
     display: inline-flex;
     align-items: center;
-    margin-top: 7px;
+    vertical-align: middle;
+    max-width: 100%;
     padding: 3px 10px;
     border-radius: 999px;
     background: #e8f4f1;

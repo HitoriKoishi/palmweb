@@ -81,7 +81,7 @@
                             <li><a href="https://sc.seu.edu.cn/docs/index.html" target="_blank"> 东南大学大数据计算中心使用手册</a></li>-->
                             <li><a href="https://www.bilibili.com/video/BV14FGc6LEVb" target="_blank"> 南京大学结丹期教授助你科研筑基
                                 </a></li>
-                            <li><a href="arxiv.html" target="_blank"> Latest related arXiv papers</a></li>
+                            <!-- <li><a href="arxiv.html" target="_blank"> Latest related arXiv papers</a></li> -->
                         </ul>
                     </div>
                 </aside>
@@ -585,8 +585,7 @@
                     return `
                         <div class="paper-item">
                             <div class="paper-info">
-                                <div class="paper-title">${paper.title}</div>
-                                ${confTag ? `<span class="conf-tag">${confTag}</span>` : ''}
+                                <div class="paper-title">${paper.title}${confTag ? ` <span class="conf-tag">${confTag}</span>` : ''}</div>
                             </div>
                             ${linkHTML}
                         </div>
